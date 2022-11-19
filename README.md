@@ -7,7 +7,7 @@ This is a ml program that makes predictions on the level of a songs popularity b
 ## Contributors
 
 This project would not have been possible without the hard work of:
-- Zack Zhang
-- Jack Xu
-- Sean
-- Jack Anstey
+- Zack Zhang [@zackkkkkz](https://github.com/zackkkkkz)
+- Jack Xu [@jxu0208](https://github.com/jxu0208)
+- Sean Huang []()
+- Jack Anstey [@Jack-Anstey](https://github.com/Jack-Anstey)
