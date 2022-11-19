@@ -9,5 +9,5 @@ This is a ml program that makes predictions on the level of a songs popularity b
 This project would not have been possible without the hard work of:
 - Zack Zhang [@zackkkkkz](https://github.com/zackkkkkz)
 - Jack Xu [@jxu0208](https://github.com/jxu0208)
-- Sean Huang []()
+- Sean Huang [@sean3huang](https://github.com/sean3huang)
 - Jack Anstey [@Jack-Anstey](https://github.com/Jack-Anstey)
