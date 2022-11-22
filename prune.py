@@ -39,6 +39,7 @@ def pruneNulls(data: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: a dataframe of just the data, no labels
     """
     data.dropna(inplace=True)  # drop all empty rows
+    data.reset_index(drop=True, inplace=True)  # reset index values
 
     newPop = data['popularity'].copy()
     newRank = data['peak-rank'].copy()
