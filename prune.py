@@ -44,6 +44,10 @@ def pruneNulls(data: pd.DataFrame) -> pd.DataFrame:
     newPop = data['popularity'].copy()
     newRank = data['peak-rank'].copy()
 
+    # force the popularity and peak-rank to be a particular datatype
+    newPop = newPop.astype(int)
+    newRank = newRank.astype(int)
+
     data.drop(columns=['popularity', 'peak-rank'], inplace=True)
 
     newPop.to_csv('pruned datasets/popularity.csv', index=False)
