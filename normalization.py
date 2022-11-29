@@ -2,21 +2,22 @@ import pandas as pd
 import sklearn as sk
 import sklearn.preprocessing as pre
 
-def normalize(data: pd.DataFrame) -> pd.DataFrame:
+def normalize(fullData: pd.DataFrame, portion: pd.DataFrame) -> pd.DataFrame:
     """Take a dataframe and normalize it using sklearn's standard scaler
 
     Args:
-        data (pd.DataFrame): the data that you want to normalize
+        fullData (pd.DataFrame): the entire dataset that defines the scalar
+        portion (pd.DataFrame): the data that you want to normalize
 
     Returns:
         pd.DataFrame: the normalized data
     """
 
-    # make our scaler using the training data
-    scaler = pre.StandardScaler().fit(data)
+    # make our scaler using the full dataset
+    scaler = pre.StandardScaler().fit(fullData)
 
-    # return the resulting dataframes through transformation
-    return pd.DataFrame(scaler.transform(data), columns=data.columns)
+    # return the normalized portion through transformation
+    return pd.DataFrame(scaler.transform(portion), columns=portion.columns)
 
 def main():
     """

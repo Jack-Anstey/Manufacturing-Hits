@@ -38,6 +38,7 @@ def pruneNulls(data: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: a dataframe of just the data, no labels
     """
+
     data.dropna(inplace=True)  # drop all empty rows
     data.reset_index(drop=True, inplace=True)  # reset index values
 
@@ -55,6 +56,15 @@ def pruneNulls(data: pd.DataFrame) -> pd.DataFrame:
 
     return data
 
+def reduceLabels() -> None:
+    """Take the newly generated popularity.csv and ranks.csv,
+    and then create popularity-reduced.csv and ranks-reduced.csv
+    where we reduce the number of classes from 100 to 10
+    """
+    
+    # TODO reductions
+    print("Do the reductions here!")
+
 def main():
     """
     Take the original output from Spotify-Scraper and prune null rows 
@@ -63,6 +73,7 @@ def main():
 
     data = pruneNulls(pd.read_csv("original datasets/data.csv", skip_blank_lines=False))
     pruneData(data)
+    reduceLabels()
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@ import pandas as pd
 import sklearn as sk
 from normalization import normalize
 
-def getDataRange(minYear: int, maxYear: int, data: pd.DataFrame, popularity: pd.DataFrame, rank: pd.DataFrame) -> list():
+def getDataRange(minYear: int, maxYear: int, data: pd.DataFrame, popularity: pd.DataFrame, rank: pd.DataFrame, popReduced: pd.DataFrame, rankReduced: pd.DataFrame) -> list():
     """Given a minimum year and a maximum year, get the rows that are within that range (inclusive)
 
     Args:
@@ -11,6 +11,8 @@ def getDataRange(minYear: int, maxYear: int, data: pd.DataFrame, popularity: pd.
         data (pd.DataFrame): the data to comb through
         popularity (pd.DataFrame): the popularity labels of the data
         rank (pd.DataFrame): the rank labels of the data
+        popReduced (pd.DataFrame): the popularity labels reduced to only have 10 classes
+        rankReduced (pd.DataFrame): the rank labels reduced to only have 10 classes
 
     Returns:
         list(): a list of dataframes with only range of years provided in the args
@@ -25,21 +27,42 @@ def getDataRange(minYear: int, maxYear: int, data: pd.DataFrame, popularity: pd.
     dataC = data.copy()
     dataC['popularity'] = popularity
     dataC['peak-rank'] = rank
+    dataC['popR'] = popReduced
+    dataC['rankR'] = rankReduced
 
     # get a subdata frame with only the range specified
     dataC = dataC.loc[(dataC['release_year'] >= minYear) & (dataC['release_year'] <= maxYear)]
     dataC.reset_index(drop=True, inplace=True)  # resets the garbage indexes
-    
+
+    #shuffle the combined dataset
+    shuffled = dataC.sample(frac=1).reset_index(drop=True)
+
+    #do 70/30 train test splits
+    train = shuffled[:int(len(shuffled)*0.7)].copy()
+    test = shuffled[int(len(shuffled)*0.7):].copy()
+
     # prep data for returning
-    newPop = dataC['popularity'].copy()
-    newRank = dataC['peak-rank'].copy()
-    dataC.drop(columns=['popularity', 'peak-rank'], inplace=True)
+    popTrain = train['popularity'].copy()
+    rankTrain = train['peak-rank'].copy()
+    popRTr = train['popR'].copy()
+    rankRTr = train['rankR'].copy()
+    train.drop(columns=['popularity', 'peak-rank', 'popR', 'rankR'], inplace=True)
+
+    popTest = test['popularity'].copy()
+    rankTest = test['peak-rank'].copy()
+    popRTe = test['popR'].copy()
+    rankRTe = test['rankR'].copy()
+    test.drop(columns=['popularity', 'peak-rank', 'popR', 'rankR'], inplace=True)
+
+    shuffled.drop(columns=['popularity', 'peak-rank', 'popR', 'rankR'], inplace=True)
 
     # build and return a dictionary!
-    return {'data': dataC, 'popularity': newPop, 'peak-rank': newRank}
+    return {'data': shuffled, 'data-train': train, 'popularity-train': popTrain, 'popularity-reduced-train': popRTr,  
+            'peak-rank-train': rankTrain, 'peak-rank-reduced-train': rankRTr, 'data-test': test, 'popularity-test': popTest,
+            'popularity-reduced-test': popRTe, 'peak-rank-test': rankTest, 'peak-rank-reduced-test': rankRTe}
 
 
-def getSubFrames(data: pd.DataFrame, popularity: pd.DataFrame, rank: pd.DataFrame, minDec, maxDec) -> dict(dict()):
+def getSubFrames(data: pd.DataFrame, popularity: pd.DataFrame, rank: pd.DataFrame, popReduced: pd.DataFrame, rankReduced: pd.DataFrame, minDec, maxDec) -> dict(dict()):
     """Generate sub dataframes from our initial dataset. The number of subframes that will be generated
     is defined by the input of minDec and maxDec inclusive. I.e. if you set maxDec to 
     2020, then 2020 will be considered. Each subframe will be the size of a decade.
@@ -50,6 +73,8 @@ def getSubFrames(data: pd.DataFrame, popularity: pd.DataFrame, rank: pd.DataFram
         data (pd.DataFrame): the data to comb through
         popularity (pd.DataFrame): the popularity labels of the data
         rank (pd.DataFrame): the rank labels of the data
+        popReduced (pd.DataFrame): the popularity labels reduced to only have 10 classes
+        rankReduced (pd.DataFrame): the rank labels reduced to only have 10 classes
         minDec (int): minimum year to consider
         maxDec (int): maximum year to consider
 
@@ -63,22 +88,15 @@ def getSubFrames(data: pd.DataFrame, popularity: pd.DataFrame, rank: pd.DataFram
 
     # add subframes to the dictionary (+10 is to make call inclusive)
     for minYear in range(minDec, maxDec+10, 10):  # iterate through each decade from 1950 to 2020
-        batches[minYear] = getDataRange(minYear, minYear+9, data, popularity, rank)
+        batches[minYear] = getDataRange(minYear, minYear+9, data, popularity, rank, popReduced, rankReduced)
         # print("Min:", minYear, "Max:", minYear+9)
 
-    # normalize each data frame (get it!?)
+    # normalize the training and test sub dataframes utilizing the entire dataset before the train/test split
     for key in batches.keys():
-        # TODO ask if during normalization, we should be making a new StandardScalar() fit for each 
-        # sub dataset or apply the StandardScalar() 
-
-        # TODO should we do PCA here too? I personally don't think so
-        # since we lose weight meanings which is what we are doing
-        # our analysis on
-        batches[key]['data'] = normalize(batches[key]['data'])
-        # print(batches[key][0], batches[key][1], batches[key][2])  # works!
+        batches[key]['data-train'] = normalize(batches[key]['data'], batches[key]['data-train'])
+        batches[key]['data-test'] = normalize(batches[key]['data'], batches[key]['data-test'])
 
     return batches
-
 
 def main():
     """
