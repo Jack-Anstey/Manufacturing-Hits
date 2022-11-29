@@ -31,8 +31,8 @@ def getAcc(subFrame: dict()) -> tuple():
         (float, float): the accuracy score using the popularity labels, and the accuracy score using the rank labels
     """
 
-    return (accuracy_score(y_true=subFrame['popularity-test'], y_pred=subFrame['random-forest']['model-pop'].predict(subFrame['data-test'])), 
-    accuracy_score(y_true=subFrame['peak-rank-test'], y_pred=subFrame['random-forest']['model-rank'].predict(subFrame['data-test'])))
+    return (accuracy_score(y_true=subFrame['popularity-reduced-test'], y_pred=subFrame['random-forest']['model-pop'].predict(subFrame['data-test'])), 
+    accuracy_score(y_true=subFrame['peak-rank-reduced-test'], y_pred=subFrame['random-forest']['model-rank'].predict(subFrame['data-test'])))
 
 def main():
     # load the data
