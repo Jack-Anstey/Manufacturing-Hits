@@ -6,7 +6,6 @@ from normalization import normalize
 
 
 
-
 def reduceFeatures(data: pd.DataFrame, threshold:float) -> None:
     """Take a dataframe and remove highly correlated features based on Pearson Correlation, plots heatmap as well
     Args:
@@ -49,10 +48,6 @@ def main():
     
     print(data)
 
-    
-    
-    
-    
 
 if __name__ == "__main__":
     main()
