@@ -9,7 +9,7 @@ def pruneData(data: pd.DataFrame) -> None:
     """
 
     newColumns = ['release_year']
-    newColumns.extend(data.columns[2:]) # create a new set of columns
+    newColumns.extend(data.columns[2:])  # create a new set of columns
     pruned = pd.DataFrame(columns = newColumns)  # make a dataframe using the new columns
 
     for row in data.iterrows():  # go through each row of the dataframe
@@ -62,8 +62,26 @@ def reduceLabels() -> None:
     where we reduce the number of classes from 100 to 10
     """
     
-    # TODO reductions
-    print("Do the reductions here!")
+    reduced_pop = pd.read_csv("pruned datasets/popularity.csv")
+    reduced_ranks = pd.read_csv("pruned datasets/ranks.csv")
+
+    # reduce categories of popularity
+    for i in range(0, 101):
+        v = int(i / 10)
+        if i == 100:
+            v = 10
+        reduced_pop.replace(to_replace=i, value=v, inplace=True)
+    reduced_pop.to_csv('pruned datasets/popularity-reduced.csv', index=False)
+
+    # reduce categories of rank
+    value = 10
+    for i in range(1, 101):
+        if i % 10 == 0:
+            value -= 1
+        if i == 100:
+            value = 1
+        reduced_ranks.replace(to_replace=i, value=value, inplace=True)
+    reduced_ranks.to_csv('pruned datasets/ranks-reduced.csv', index=False)
 
 def main():
     """
