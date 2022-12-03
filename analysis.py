@@ -57,14 +57,13 @@ def main():
         print("SGD Linear Regression model r^2 value (peak-rank):", rank)
         print()
 
-    # TODO uncomment this when random forest is implemented in modelgen.py
     # display accuracy
-    # for key in subFrames:
-    #     print("Year range:", str(key), "to", str(key+9))
-    #     pop, rank = getAcc(subFrames[key])
-    #     print("Random Forest model accuracy (popularity):", pop)
-    #     print("Random Forest model accuracy (peak-rank):", rank)
-    #     print()
+    for key in subFrames:
+        print("Year range:", str(key), "to", str(key+9))
+        pop, rank = getAcc(subFrames[key])
+        print("Random Forest model accuracy (popularity):", pop)
+        print("Random Forest model accuracy (peak-rank):", rank)
+        print()
 
     # TODO
     # Combine training data by decade together and combine test data by decade
