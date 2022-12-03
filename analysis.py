@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.metrics import r2_score
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
 from sklearn.linear_model import SGDRegressor
 from subframes import getSubFrames
 from modelgen import randomForest
@@ -9,21 +10,22 @@ from modelgen import knn
 from normalization import normalize
 import matplotlib.pyplot as plt
 
-def getR2(subFrame: dict()) -> tuple():
+def getR2(subFrame: dict(), modelName: str) -> tuple():
     """Get the r^2 value of a given linear regression model
 
     Args:
         subFrame (dict): the dictionary that holds the model and the data
+        modelName (str): the name of the model that you are going to use
 
     Returns:
         (float, float): the r^2 using the popularity labels, and the r^2 using the rank labels
     """
 
-    return (r2_score(y_true=subFrame['popularity-test'], y_pred=subFrame['linear-regression']['model-pop'].predict(subFrame['data-test'])), 
-    r2_score(y_true=subFrame['peak-rank-test'], y_pred=subFrame['linear-regression']['model-rank'].predict(subFrame['data-test'])))
+    return (r2_score(y_true=subFrame['popularity-test'], y_pred=subFrame[modelName]['model-pop'].predict(subFrame['data-test'])), 
+    r2_score(y_true=subFrame['peak-rank-test'], y_pred=subFrame[modelName]['model-rank'].predict(subFrame['data-test'])))
 
 def getAcc(subFrame: dict(), modelName: str) -> tuple():
-    """Get the accuracy score of a given random forest model
+    """Get the accuracy score of a given model
 
     Args:
         subFrame (dict): the dictionary that holds the model and the data
@@ -36,6 +38,81 @@ def getAcc(subFrame: dict(), modelName: str) -> tuple():
     return (accuracy_score(y_true=subFrame['popularity-reduced-test'], y_pred=subFrame[modelName]['model-pop'].predict(subFrame['data-test'])), 
     accuracy_score(y_true=subFrame['peak-rank-reduced-test'], y_pred=subFrame[modelName]['model-rank'].predict(subFrame['data-test'])))
 
+def getF1(subFrame: dict, modelName: str, average: str) -> tuple():
+    """Get the F1 score of a given model
+
+    Args:
+        subFrame (dict): the dictionary that holds the model and the data
+        modelName (str): the name of the model that you are going to use
+        average (str): the average value that you want to have applied to the F1 score method
+
+    Returns:
+        (float, float): the F1 score using the popularity labels, and the F1 score using the rank labels
+    """
+
+    return (f1_score(y_true=subFrame['popularity-reduced-test'], y_pred=subFrame[modelName]['model-pop'].predict(subFrame['data-test']), average=average), 
+    f1_score(y_true=subFrame['peak-rank-reduced-test'], y_pred=subFrame[modelName]['model-rank'].predict(subFrame['data-test']), average=average))
+
+def analyzeLinReg(subFrames: dict) -> None:
+    """Analyze how effective the linear regression model is
+
+    Args:
+        subFrames (dict): the dictionary that holds the model and the data
+    """
+
+    # create models using subframes
+    linReg(subFrames)
+
+    # display r^2
+    for key in subFrames:
+        print("Year range:", str(key), "to", str(key+9))
+        pop, rank = getR2(subFrames[key], 'linear-regression')
+        print("SGD Linear Regression model r^2 value (popularity):", pop)
+        print("SGD Linear Regression model r^2 value (peak-rank):", rank)
+        print()
+
+def analyzeRF(subFrames: dict) -> None:
+    """Analyze how effective the random forest model is
+
+    Args:
+        subFrames (dict): the dictionary that holds the model and the data
+    """
+
+    # create models using subframes
+    randomForest(subFrames)
+
+    # display accuracy and F1 for rf
+    for key in subFrames:
+        print("Year range:", str(key), "to", str(key+9))
+        pop1, rank1 = getAcc(subFrames[key], 'random-forest')
+        pop2, rank2 = getF1(subFrames[key], 'rf', 'weighted')
+        print("Random Forest model accuracy (popularity):", pop1)
+        print("Random Forest F1 (popularity):", pop2)
+        print("Random Forest model accuracy (peak-rank):", rank1)
+        print("Random Forest F1 (peak-rank):", rank2)
+        print()
+
+def analyzeKNN(subFrames: dict) -> None:
+    """Analyze how effective the KNN model is
+
+    Args:
+        subFrames (dict): the dictionary that holds the model and the data
+    """
+
+    # create models using subframes
+    knn(subFrames)
+
+    # display accuracy and F1 for knn
+    for key in subFrames:
+        print("Year range:", str(key), "to", str(key+9))
+        pop1, rank1 = getAcc(subFrames[key], 'knn')
+        pop2, rank2 = getF1(subFrames[key], 'knn', 'weighted')
+        print("KNN model accuracy (popularity):", pop1)
+        print("KNN F1 (popularity):", pop2)
+        print("KNN model accuracy (peak-rank):", rank1)
+        print("KNN F1 (peak-rank):", rank2)
+        print()
+
 def main():
     # load the data
     data = pd.read_csv("pruned datasets/data.csv")
@@ -47,35 +124,10 @@ def main():
     # get subframes from data
     subFrames = getSubFrames(data, popularity, rank, popularityReduced, rankReduced, 1950, 2020)
     
-    # create models using subframes
-    # linReg(subFrames)
-    # randomForest(subFrames)
-    knn(subFrames)
-    
-    # display r^2
-    # for key in subFrames:
-    #     print("Year range:", str(key), "to", str(key+9))
-    #     pop, rank = getR2(subFrames[key])
-    #     print("SGD Linear Regression model r^2 value (popularity):", pop)
-    #     print("SGD Linear Regression model r^2 value (peak-rank):", rank)
-    #     print()
-
-    # display accuracy for rf
-    # for key in subFrames:
-    #     print("Year range:", str(key), "to", str(key+9))
-    #     pop, rank = getAcc(subFrames[key], 'random-forest')
-    #     print("Random Forest model accuracy (popularity):", pop)
-    #     print("Random Forest model accuracy (peak-rank):", rank)
-    #     print()
-
-    # display accuracy for knn
-    for key in subFrames:
-        print("Year range:", str(key), "to", str(key+9))
-        pop, rank = getAcc(subFrames[key], 'knn')
-        print("KNN model accuracy (popularity):", pop)
-        print("KNN model accuracy (peak-rank):", rank)
-        print()
-    
+    # perform r^2, acc, and F1 analysis (as applicable) and print the results
+    # analyzeLinReg(subFrames)
+    # analyzeRF(subFrames)
+    analyzeKNN(subFrames)
 
     # TODO
     # Combine training data by decade together and combine test data by decade
