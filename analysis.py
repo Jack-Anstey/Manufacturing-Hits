@@ -10,6 +10,64 @@ from modelgen import knn
 from normalization import normalize
 import matplotlib.pyplot as plt
 
+def combine(subFrames: dict) -> dict:
+    """Given a dictionary of data and labels, combine them appropriately
+
+    Args:
+        subFrames (dict): the original data and labels
+
+    Returns:
+        dict: a dictionary of the combined data and labels
+    """
+    combDataTrain = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['data-train'].columns)
+    combDataTest = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['data-train'].columns)
+    combPopTrain = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['popularity-train'].columns, dtype=int)
+    combPopTest = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['popularity-test'].columns, dtype=int)
+    combPopRTrain = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['popularity-reduced-train'].columns, dtype=int)
+    combPopRTest = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['popularity-reduced-test'].columns, dtype=int)
+    combRankTrain = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['peak-rank-train'].columns, dtype=int)
+    combRankTest = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['peak-rank-test'].columns, dtype=int)
+    combRankRTrain = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['peak-rank-reduced-train'].columns, dtype=int)
+    combRankRTest = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['peak-rank-reduced-test'].columns, dtype=int)
+
+    # combine!
+    for key in subFrames:
+        combDataTrain = pd.concat([combDataTrain, subFrames[key]['data-train']])
+        combDataTrain.reset_index(drop=True, inplace=True)
+
+        combDataTest = pd.concat([combDataTest, subFrames[key]['data-test']])
+        combDataTest.reset_index(drop=True, inplace=True)
+
+        combPopTrain = pd.concat([combPopTrain, subFrames[key]['popularity-train']])
+        combPopTrain.reset_index(drop=True, inplace=True)
+
+        combPopTest = pd.concat([combPopTest, subFrames[key]['popularity-test']])
+        combPopTest.reset_index(drop=True, inplace=True)
+        
+        combRankTrain = pd.concat([combRankTrain, subFrames[key]['peak-rank-train']])
+        combRankTrain.reset_index(drop=True, inplace=True)
+
+        combRankTest = pd.concat([combRankTest, subFrames[key]['peak-rank-test']])
+        combRankTest.reset_index(drop=True, inplace=True)
+
+        combPopRTrain = pd.concat([combPopRTrain, subFrames[key]['popularity-reduced-train']])
+        combPopRTrain.reset_index(drop=True, inplace=True)
+
+        combPopRTest = pd.concat([combPopRTest, subFrames[key]['popularity-reduced-test']])
+        combPopRTest.reset_index(drop=True, inplace=True)
+        
+        combRankRTrain = pd.concat([combRankRTrain, subFrames[key]['peak-rank-reduced-train']])
+        combRankRTrain.reset_index(drop=True, inplace=True)
+
+        combRankRTest = pd.concat([combRankRTest, subFrames[key]['peak-rank-reduced-test']])
+        combRankRTest.reset_index(drop=True, inplace=True)
+
+    return {'everything': {'data-train': combDataTrain, 'data-test': combDataTest, 'popularity-train': combPopTrain, 
+    'popularity-test': combPopTest, 'popularity-reduced-train': combPopRTrain, 
+    'popularity-reduced-test': combPopRTest, 'peak-rank-train': combRankTrain, 
+    'peak-rank-test': combRankTest, 'peak-rank-reduced-train': combRankRTrain, 
+    'peak-rank-reduced-test': combRankRTest}}
+
 def getR2(subFrame: dict(), modelName: str) -> tuple():
     """Get the r^2 value of a given linear regression model
 
@@ -53,11 +111,12 @@ def getF1(subFrame: dict, modelName: str, average: str) -> tuple():
     return (f1_score(y_true=subFrame['popularity-reduced-test'], y_pred=subFrame[modelName]['model-pop'].predict(subFrame['data-test']), average=average), 
     f1_score(y_true=subFrame['peak-rank-reduced-test'], y_pred=subFrame[modelName]['model-rank'].predict(subFrame['data-test']), average=average))
 
-def analyzeLinReg(subFrames: dict) -> None:
+def analyzeLinReg(subFrames: dict, fullData: bool) -> None:
     """Analyze how effective the linear regression model is
 
     Args:
         subFrames (dict): the dictionary that holds the model and the data
+        fullData (bool): true if you are using the entire dataset, false if not
     """
 
     # create models using subframes
@@ -65,17 +124,19 @@ def analyzeLinReg(subFrames: dict) -> None:
 
     # display r^2
     for key in subFrames:
-        print("Year range:", str(key), "to", str(key+9))
+        if fullData: print("The Entire Dataset:")
+        else: print("Year range:", str(key), "to", str(key+9))
         pop, rank = getR2(subFrames[key], 'linear-regression')
         print("SGD Linear Regression model r^2 value (popularity):", pop)
         print("SGD Linear Regression model r^2 value (peak-rank):", rank)
         print()
 
-def analyzeRF(subFrames: dict) -> None:
+def analyzeRF(subFrames: dict, fullData: bool) -> None:
     """Analyze how effective the random forest model is
 
     Args:
         subFrames (dict): the dictionary that holds the model and the data
+        fullData (bool): true if you are using the entire dataset, false if not
     """
 
     # create models using subframes
@@ -83,20 +144,22 @@ def analyzeRF(subFrames: dict) -> None:
 
     # display accuracy and F1 for rf
     for key in subFrames:
-        print("Year range:", str(key), "to", str(key+9))
+        if fullData: print("The Entire Dataset:") 
+        else: print("Year range:", str(key), "to", str(key+9))
         pop1, rank1 = getAcc(subFrames[key], 'random-forest')
-        pop2, rank2 = getF1(subFrames[key], 'rf', 'weighted')
+        pop2, rank2 = getF1(subFrames[key], 'random-forest', 'weighted')
         print("Random Forest model accuracy (popularity):", pop1)
         print("Random Forest F1 (popularity):", pop2)
         print("Random Forest model accuracy (peak-rank):", rank1)
         print("Random Forest F1 (peak-rank):", rank2)
         print()
 
-def analyzeKNN(subFrames: dict) -> None:
+def analyzeKNN(subFrames: dict, fullData: bool) -> None:
     """Analyze how effective the KNN model is
 
     Args:
         subFrames (dict): the dictionary that holds the model and the data
+        fullData (bool): true if you are using the entire dataset, false if not
     """
 
     # create models using subframes
@@ -104,7 +167,8 @@ def analyzeKNN(subFrames: dict) -> None:
 
     # display accuracy and F1 for knn
     for key in subFrames:
-        print("Year range:", str(key), "to", str(key+9))
+        if fullData: print("The Entire Dataset:") 
+        else: print("Year range:", str(key), "to", str(key+9))
         pop1, rank1 = getAcc(subFrames[key], 'knn')
         pop2, rank2 = getF1(subFrames[key], 'knn', 'weighted')
         print("KNN model accuracy (popularity):", pop1)
@@ -125,58 +189,17 @@ def main():
     subFrames = getSubFrames(data, popularity, rank, popularityReduced, rankReduced, 1950, 2020)
     
     # perform r^2, acc, and F1 analysis (as applicable) and print the results
-    # analyzeLinReg(subFrames)
-    # analyzeRF(subFrames)
-    analyzeKNN(subFrames)
+    analyzeLinReg(subFrames, False)
+    analyzeRF(subFrames, False)
+    analyzeKNN(subFrames, False)
 
-    # TODO
-    # Combine training data by decade together and combine test data by decade
-    # Then, model and test the r^2 and accuracy of this combined dataset using the SGDLinReg and random forest respectively
+    # Combining training and test datasets
+    combinedEverything = combine(subFrames)
 
-    # combined training and test datasets
-    # build all the neccessary dataframes
-    combDataTrain = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['data-train'].columns)
-    combDataTest = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['data-train'].columns)
-    combPopTrain = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['popularity-train'].columns)
-    combPopTest = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['popularity-test'].columns)
-    combPopRTrain = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['popularity-reduced-train'].columns)
-    combPopRTest = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['popularity-reduced-test'].columns)
-    combRankTrain = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['peak-rank-train'].columns)
-    combRankTest = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['peak-rank-test'].columns)
-    combRankRTrain = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['peak-rank-reduced-train'].columns)
-    combRankRTest = pd.DataFrame(columns=subFrames[list(subFrames.keys())[0]]['peak-rank-reduced-test'].columns)
-
-    # combine!
-    for key in subFrames:
-        combDataTrain = pd.concat([combDataTrain, subFrames[key]['data-train']])
-        combDataTrain.reset_index(drop=True, inplace=True)
-
-        combDataTest = pd.concat([combDataTest, subFrames[key]['data-test']])
-        combDataTest.reset_index(drop=True, inplace=True)
-
-        combPopTrain = pd.concat([combPopTrain, subFrames[key]['popularity-train']])
-        combPopTrain.reset_index(drop=True, inplace=True)
-
-        combPopTest = pd.concat([combPopTest, subFrames[key]['popularity-test']])
-        combPopTest.reset_index(drop=True, inplace=True)
-        
-        combRankTrain = pd.concat([combRankTrain, subFrames[key]['peak-rank-train']])
-        combRankTrain.reset_index(drop=True, inplace=True)
-
-        combRankTest = pd.concat([combRankTest, subFrames[key]['peak-rank-test']])
-        combRankTest.reset_index(drop=True, inplace=True)
-
-        combPopRTrain = pd.concat([combPopRTrain, subFrames[key]['popularity-reduced-train']])
-        combPopRTrain.reset_index(drop=True, inplace=True)
-
-        combPopRTest = pd.concat([combPopRTest, subFrames[key]['popularity-reduced-test']])
-        combPopRTest.reset_index(drop=True, inplace=True)
-        
-        combRankRTrain = pd.concat([combRankRTrain, subFrames[key]['peak-rank-reduced-train']])
-        combRankRTrain.reset_index(drop=True, inplace=True)
-
-        combRankRTest = pd.concat([combRankRTest, subFrames[key]['peak-rank-reduced-test']])
-        combRankRTest.reset_index(drop=True, inplace=True)
+    # Check the results using the entire dataset!
+    analyzeLinReg(combinedEverything, True)
+    analyzeRF(combinedEverything, True)
+    analyzeKNN(combinedEverything, True)
 
 if __name__ == "__main__":
     main()

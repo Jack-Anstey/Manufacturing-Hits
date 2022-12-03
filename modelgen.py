@@ -53,8 +53,8 @@ def randomForest(frames: dict(dict())) -> None:
     # popularity-reduced-train and peak-rank-reduced-train for the labels!
     for key in frames.keys():
         # no tuning
-        # frames[key]['random-forest'] = {'model-pop': RandomForestClassifier(n_estimators=750, max_depth=15, min_samples_leaf=5).fit(frames[key]['data-train'], frames[key]['popularity-reduced-train']),
-        #                                 "model-rank": RandomForestClassifier(n_estimators=750, max_depth=15, min_samples_leaf=5).fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'])}
+        # frames[key]['random-forest'] = {'model-pop': RandomForestClassifier(n_estimators=750, max_depth=15, min_samples_leaf=5).fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel()),
+        #                                 "model-rank": RandomForestClassifier(n_estimators=750, max_depth=15, min_samples_leaf=5).fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())}
 
         # with tuning
         rf_RandomGridPop.fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel())
@@ -84,9 +84,6 @@ def knn(frames: dict(dict())) -> None:
         frames[key]['knn'] = {'model-pop': knn_RandomGridPop, 'model-rank' : knn_RandomGridRank}
         print("pop knn grid best params: {}\n".format(knn_RandomGridPop.best_params_))
         print("rank knn grid best params: {}\n".format(knn_RandomGridRank.best_params_))
-        
-       
-        
         
 def main():
     data = pd.read_csv("pruned datasets/data.csv")
