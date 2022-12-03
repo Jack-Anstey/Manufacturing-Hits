@@ -5,6 +5,8 @@ from sklearn.model_selection import RandomizedSearchCV
 from subframes import getSubFrames
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.neighbors import KNeighborsClassifier
+
 
 def linReg(frames: dict(dict())) -> None:
     """Given a dictionary of dictionaries of dataframes,
@@ -61,6 +63,31 @@ def randomForest(frames: dict(dict())) -> None:
         print("pop rf grid best params: {}\n".format(rf_RandomGridPop.best_params_))
         print("rank rf grid best params: {}\n".format(rf_RandomGridRank.best_params_))
 
+ 
+def knn(frames: dict(dict())) -> None:
+    """Given a dictionary of dictionaries of dataframes,
+    this method creates a KNN model for all of them
+    Args:
+        frames (dict(dict())): A dictionary of dictionaries of dataframes
+    """
+    # hyperparameters for tuning
+    n_neighbors = [1,3,5,10,20,30,50,75,100,150,200]
+    metric = ['euclidean','manhattan','minkowski']
+    hyperF = dict(n_neighbors = n_neighbors,metric = metric)
+    knn_RandomGridPop = RandomizedSearchCV(estimator= KNeighborsClassifier(), param_distributions=hyperF, cv=10, verbose=2, n_jobs=4)
+    knn_RandomGridRank = RandomizedSearchCV(estimator= KNeighborsClassifier(), param_distributions=hyperF, cv=10, verbose=2, n_jobs=4)
+
+
+    for key in frames.keys():
+        knn_RandomGridPop.fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'])
+        knn_RandomGridRank.fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'])
+        frames[key]['knn'] = {'model-pop': knn_RandomGridPop, 'model-rank' : knn_RandomGridRank}
+        print("pop knn grid best params: {}\n".format(knn_RandomGridPop.best_params_))
+        print("rank knn grid best params: {}\n".format(knn_RandomGridRank.best_params_))
+        
+       
+        
+        
 def main():
     data = pd.read_csv("pruned datasets/data.csv")
     popularity = pd.read_csv("pruned datasets/popularity.csv")
