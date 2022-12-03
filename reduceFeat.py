@@ -4,8 +4,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from normalization import normalize
 
-
-
 def reduceFeatures(data: pd.DataFrame, threshold:float) -> None:
     """Take a dataframe and remove highly correlated features based on Pearson Correlation, plots heatmap as well
     Args:
@@ -30,12 +28,9 @@ def reduceFeatures(data: pd.DataFrame, threshold:float) -> None:
                 val = p_matrix[i,j]
                 if abs(val) >= threshold and (not val in mydrops) and i!=j:
                     mydrops.append(j)
-                
 
     dropfeats = feats[mydrops]
     data.drop(columns = dropfeats,axis=1,inplace = True)
-    
-    
     
 def main():
     """

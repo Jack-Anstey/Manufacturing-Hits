@@ -3,8 +3,6 @@ import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 
-
-
 def pca(xTrain, xTest):
     """Conducts PCA on training and test set of features until 95% of variance is captured (must be used AFTER normalization)
     Args:
