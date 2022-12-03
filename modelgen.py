@@ -17,8 +17,8 @@ def linReg(frames: dict(dict())) -> None:
     """
 
     for key in frames.keys():
-        frames[key]['linear-regression'] = {'model-pop': SGDRegressor(max_iter=1000, tol=1e-3).fit(frames[key]['data-train'], frames[key]['popularity-train']),
-        'model-rank': SGDRegressor(max_iter=1000, tol=1e-3).fit(frames[key]['data-train'], frames[key]['peak-rank-train'])}
+        frames[key]['linear-regression'] = {'model-pop': SGDRegressor(max_iter=1000, tol=1e-3).fit(frames[key]['data-train'], frames[key]['popularity-train'].values.ravel()),
+        'model-rank': SGDRegressor(max_iter=1000, tol=1e-3).fit(frames[key]['data-train'], frames[key]['peak-rank-train'].values.ravel())}
 
     # no need to return frames since adding keys does that implicitly
 def getAcc(subFrame: dict()) -> tuple():
@@ -57,8 +57,8 @@ def randomForest(frames: dict(dict())) -> None:
         #                                 "model-rank": RandomForestClassifier(n_estimators=750, max_depth=15, min_samples_leaf=5).fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'])}
 
         # with tuning
-        rf_RandomGridPop.fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'])
-        rf_RandomGridRank.fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'])
+        rf_RandomGridPop.fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel())
+        rf_RandomGridRank.fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())
         frames[key]['random-forest'] = {'model-pop': rf_RandomGridPop, 'model-rank' : rf_RandomGridRank}
         print("pop rf grid best params: {}\n".format(rf_RandomGridPop.best_params_))
         print("rank rf grid best params: {}\n".format(rf_RandomGridRank.best_params_))
@@ -70,6 +70,7 @@ def knn(frames: dict(dict())) -> None:
     Args:
         frames (dict(dict())): A dictionary of dictionaries of dataframes
     """
+
     # hyperparameters for tuning
     n_neighbors = [1,3,5,10,20,30,50,75,100,150,200]
     metric = ['euclidean','manhattan','minkowski']
@@ -77,10 +78,9 @@ def knn(frames: dict(dict())) -> None:
     knn_RandomGridPop = RandomizedSearchCV(estimator= KNeighborsClassifier(), param_distributions=hyperF, cv=10, verbose=2, n_jobs=4)
     knn_RandomGridRank = RandomizedSearchCV(estimator= KNeighborsClassifier(), param_distributions=hyperF, cv=10, verbose=2, n_jobs=4)
 
-
     for key in frames.keys():
-        knn_RandomGridPop.fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'])
-        knn_RandomGridRank.fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'])
+        knn_RandomGridPop.fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel())
+        knn_RandomGridRank.fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())
         frames[key]['knn'] = {'model-pop': knn_RandomGridPop, 'model-rank' : knn_RandomGridRank}
         print("pop knn grid best params: {}\n".format(knn_RandomGridPop.best_params_))
         print("rank knn grid best params: {}\n".format(knn_RandomGridRank.best_params_))

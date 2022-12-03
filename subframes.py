@@ -42,16 +42,16 @@ def getDataRange(minYear: int, maxYear: int, data: pd.DataFrame, popularity: pd.
     test = shuffled[int(len(shuffled)*0.7):].copy()
 
     # prep data for returning
-    popTrain = train['popularity'].copy()
-    rankTrain = train['peak-rank'].copy()
-    popRTr = train['popR'].copy()
-    rankRTr = train['rankR'].copy()
+    popTrain = train['popularity'].copy().to_frame()
+    rankTrain = train['peak-rank'].copy().to_frame()
+    popRTr = train['popR'].copy().to_frame()
+    rankRTr = train['rankR'].copy().to_frame()
     train.drop(columns=['popularity', 'peak-rank', 'popR', 'rankR'], inplace=True)
 
-    popTest = test['popularity'].copy()
-    rankTest = test['peak-rank'].copy()
-    popRTe = test['popR'].copy()
-    rankRTe = test['rankR'].copy()
+    popTest = test['popularity'].copy().to_frame()
+    rankTest = test['peak-rank'].copy().to_frame()
+    popRTe = test['popR'].copy().to_frame()
+    rankRTe = test['rankR'].copy().to_frame()
     test.drop(columns=['popularity', 'peak-rank', 'popR', 'rankR'], inplace=True)
 
     shuffled.drop(columns=['popularity', 'peak-rank', 'popR', 'rankR'], inplace=True)
