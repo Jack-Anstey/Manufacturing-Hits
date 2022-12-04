@@ -19,6 +19,7 @@ def reduceFeatures(data: pd.DataFrame, threshold:float) -> None:
 
     p_matrix = data.corr(method='pearson')
     sns.heatmap(p_matrix,vmin=-1.0,vmax =1.0, annot = True,fmt = '.2f',annot_kws={"fontsize":7})
+    plt.tight_layout()
     plt.show()
     p_matrix = p_matrix.to_numpy()
     
