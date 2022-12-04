@@ -1,6 +1,7 @@
 import pandas as pd
 import sklearn as sk
 from normalization import normalize
+from pca import pca
 
 def getDataRange(minYear: int, maxYear: int, data: pd.DataFrame, popularity: pd.DataFrame, rank: pd.DataFrame, popReduced: pd.DataFrame, rankReduced: pd.DataFrame) -> list():
     """Given a minimum year and a maximum year, get the rows that are within that range (inclusive)
@@ -95,6 +96,8 @@ def getSubFrames(data: pd.DataFrame, popularity: pd.DataFrame, rank: pd.DataFram
     for key in batches.keys():
         batches[key]['data-train'] = normalize(batches[key]['data'], batches[key]['data-train'])
         batches[key]['data-test'] = normalize(batches[key]['data'], batches[key]['data-test'])
+
+        batches[key]['data-train'], batches[key]['data-test'] = pca(batches[key]['data-train'], batches[key]['data-test'])
 
     return batches
 
