@@ -104,12 +104,12 @@ def reduceLabels5() -> None:
     reduced_pop.to_csv('pruned datasets/popularity-reduced.csv', index=False)
 
 # reduce categories of rank
-    value = 4
+    value = 0
     for i in range(1, 101):
         if i % 20 == 0:
-            value -= 1
+            value += 1
         if i == 100:
-            value = 0
+            value = 4
         reduced_ranks.replace(to_replace=i, value=value, inplace=True)
     reduced_ranks.to_csv('pruned datasets/ranks-reduced.csv', index=False)  
     
