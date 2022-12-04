@@ -26,6 +26,7 @@ def pca(xTrain, xTest):
         if variance_captured>0.95:
             new_xTrain = p.transform(xTrain)
             new_xTest = p.transform(xTest)
+            print("Number of pricipal components needed", i)
             break
 
     return pd.DataFrame(new_xTrain,columns = comp), pd.DataFrame(new_xTest,columns = comp)
