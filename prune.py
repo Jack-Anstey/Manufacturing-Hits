@@ -83,6 +83,40 @@ def reduceLabels() -> None:
         reduced_ranks.replace(to_replace=i, value=value, inplace=True)
     reduced_ranks.to_csv('pruned datasets/ranks-reduced.csv', index=False)
 
+    
+    
+    
+def reduceLabels5() -> None:
+    """Take the newly generated popularity.csv and ranks.csv,
+    and then create popularity-reduced.csv and ranks-reduced.csv
+    where we reduce the number of classes from 100 to 5,
+    for popularity and rank, labels all range from 0-4
+    """
+    reduced_pop = pd.read_csv("pruned datasets/popularity.csv")
+    reduced_ranks = pd.read_csv("pruned datasets/ranks.csv")
+
+# reduce categories of popularity
+    for i in range(0, 101):
+        v = int(i / 20)
+        if i == 100:
+            v = 4
+        reduced_pop.replace(to_replace=i, value=v, inplace=True)
+    reduced_pop.to_csv('pruned datasets/popularity-reduced.csv', index=False)
+
+# reduce categories of rank
+    value = 4
+    for i in range(1, 101):
+        if i % 20 == 0:
+            value -= 1
+        if i == 100:
+            value = 0
+        reduced_ranks.replace(to_replace=i, value=value, inplace=True)
+    reduced_ranks.to_csv('pruned datasets/ranks-reduced.csv', index=False)  
+    
+    
+    
+    
+ 
 def main():
     """
     Take the original output from Spotify-Scraper and prune null rows 
