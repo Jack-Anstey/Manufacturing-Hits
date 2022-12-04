@@ -58,12 +58,131 @@ def randomForest(frames: dict(dict())) -> None:
         #                                 "model-rank": RandomForestClassifier(n_estimators=750, max_depth=15, min_samples_leaf=5).fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())}
 
         # with tuning
-        rf_RandomGridPop.fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel())
-        rf_RandomGridRank.fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())
-        frames[key]['random-forest'] = {'model-pop': rf_RandomGridPop, 'model-rank' : rf_RandomGridRank}
-        print("pop rf grid best params: {}\n".format(rf_RandomGridPop.best_params_))
-        print("rank rf grid best params: {}\n".format(rf_RandomGridRank.best_params_))
+        # rf_RandomGridPop.fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel())
+        # rf_RandomGridRank.fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())
+        # frames[key]['random-forest'] = {'model-pop': rf_RandomGridPop, 'model-rank' : rf_RandomGridRank}
+        # print("pop rf grid best params: {}\n".format(rf_RandomGridPop.best_params_))
+        # print("rank rf grid best params: {}\n".format(rf_RandomGridRank.best_params_))
 
+        # hard coded tuning
+        estimatorsP, max_depthP, mlsP, mssP, estimatorsR, mssR, mlsR, max_depthR = getBestParams(key)
+
+        frames[key]['random-forest'] = {'model-pop': RandomForestClassifier(n_estimators=estimatorsP, max_depth=max_depthP, min_samples_split=mssP, min_samples_leaf=mlsP).fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel()),
+                                        "model-rank": RandomForestClassifier(n_estimators=estimatorsR, max_depth=max_depthR, min_samples_split=mssR, min_samples_leaf=mlsR).fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())}
+
+
+def getBestParams(key: str) -> tuple():
+    """Get the best parameters for random forest given a key
+
+    Args:
+        key (str): the key that defines what best parameters we chose
+
+    Returns:
+        tuple: a tuple of the best parameters
+    """
+
+    if key == 1950:
+        estimatorsP = 10
+        mssP = 10
+        mlsP = 1
+        max_depthP = 5
+
+        estimatorsR = 100
+        mssR = 5
+        mlsR = 2
+        max_depthR = 5
+    elif key == 1960:
+        estimatorsP = 10
+        mssP = 2
+        mlsP = 2
+        max_depthP = 5
+
+        estimatorsR = 300
+        mssR = 10
+        mlsR = 2
+        max_depthR = 5
+    elif key == 1970:
+        estimatorsP = 300
+        mssP = 10
+        mlsP = 2
+        max_depthP = 15
+
+        estimatorsR = 300
+        mssR = 2
+        mlsR = 2
+        max_depthR = 5
+    elif key == 1980:
+        estimatorsP = 300
+        mssP = 5
+        mlsP = 1
+        max_depthP = 5
+
+        estimatorsR = 300
+        mssR = 5
+        mlsR = 2
+        max_depthR = 5
+    elif key == 1990:
+        estimatorsP = 300
+        mssP = 2
+        mlsP = 2
+        max_depthP = 5
+
+        estimatorsR = 100
+        mssR = 10
+        mlsR = 2
+        max_depthR = 8
+    elif key == 2000:
+        estimatorsP = 100
+        mssP = 2
+        mlsP = 1
+        max_depthP = 8
+
+        estimatorsR = 500
+        mssR = 5
+        mlsR = 2
+        max_depthR = 5
+    elif key == 2010:
+        estimatorsP = 300
+        mssP = 10
+        mlsP = 1
+        max_depthP = 15
+
+        estimatorsR = 500
+        mssR = 10
+        mlsR = 2
+        max_depthR = 5
+    elif key == 2020:
+        estimatorsP = 800
+        mssP = 5
+        mlsP = 1
+        max_depthP = 15
+
+        estimatorsR = 300
+        mssR = 2
+        mlsR = 2
+        max_depthR = 8
+    elif key == "everything":
+        estimatorsP = 800
+        mssP = 2
+        mlsP = 1
+        max_depthP = 8
+
+        estimatorsR = 800
+        mssR = 10
+        mlsR = 1
+        max_depthR = 8
+    else:  # defaults
+        estimatorsP = 750
+        mssP = 5
+        mlsP = 5
+        max_depthP = 15
+
+        estimatorsR = 750
+        mssR = 5
+        mlsR = 5
+        max_depthR = 15
+
+    return estimatorsP, max_depthP, mlsP, mssP, estimatorsR, mssR, mlsR, max_depthR
  
 def knn(frames: dict(dict())) -> None:
     """Given a dictionary of dictionaries of dataframes,
