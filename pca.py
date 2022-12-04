@@ -30,14 +30,10 @@ def pca(xTrain, xTest):
 
     return pd.DataFrame(new_xTrain,columns = comp), pd.DataFrame(new_xTest,columns = comp)
 
-
-
 def main():
     data = pd.read_csv("pruned datasets/data.csv")
     xTrain, xTest = train_test_split(data, test_size=0.3)
     new_xTrain,new_xTest = pca(xTrain,xTest)
     
-
-
 if __name__ == "__main__":
     main()

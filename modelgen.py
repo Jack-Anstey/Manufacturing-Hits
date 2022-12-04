@@ -41,6 +41,7 @@ def randomForest(frames: dict(dict())) -> None:
     Args:
         frames (dict(dict())): A dictionary of dictionaries of dataframes
     """
+
     # hyperparameters for tuning
     n_estimators = [10, 100, 300, 500, 800]
     max_depth = [5, 8, 15]

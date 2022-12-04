@@ -82,9 +82,6 @@ def reduceLabels() -> None:
             value = 1
         reduced_ranks.replace(to_replace=i, value=value, inplace=True)
     reduced_ranks.to_csv('pruned datasets/ranks-reduced.csv', index=False)
-
-    
-    
     
 def reduceLabels5() -> None:
     """Take the newly generated popularity.csv and ranks.csv,
@@ -113,10 +110,6 @@ def reduceLabels5() -> None:
         reduced_ranks.replace(to_replace=i, value=value, inplace=True)
     reduced_ranks.to_csv('pruned datasets/ranks-reduced.csv', index=False)  
     
-    
-    
-    
- 
 def main():
     """
     Take the original output from Spotify-Scraper and prune null rows 
@@ -125,8 +118,7 @@ def main():
 
     data = pruneNulls(pd.read_csv("original datasets/data.csv", skip_blank_lines=False))
     pruneData(data)
-    reduceLabels()
-
-
+    reduceLabels5()
+    
 if __name__ == "__main__":
     main()
