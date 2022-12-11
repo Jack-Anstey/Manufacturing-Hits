@@ -8,6 +8,7 @@ from modelgen import randomForest
 from modelgen import linReg
 from modelgen import knn
 from normalization import normalize
+from sklearn import metrics
 import matplotlib.pyplot as plt
 
 def combine(subFrames: dict) -> dict:
@@ -177,6 +178,53 @@ def analyzeKNN(subFrames: dict, fullData: bool) -> None:
         print("KNN F1 (peak-rank):", rank2)
         print()
 
+def confusionMatrix(subFrames: dict, fullData: bool, model: str) -> None:
+    """
+    Create confusion matrices for the subFrames input as parameters
+    Args:
+        subFrames (dict): the dictionary that holds the model and the data
+        fullData (bool): true if entire dataset, else false
+        model (string): which model to use for error analysis
+    """
+
+    if model == "knn":
+        knn(subFrames)
+    elif model == "linear-regression":
+        linReg(subFrames)
+    elif model == "random-forest":
+        randomForest(subFrames)
+    else:
+        print("Please enter\n1. knn\n2. linear-regression\n3. random-forest\nas the \"model\" parameter")
+
+    for key in subFrames:
+        if fullData:
+            print("The Entire Dataset:")
+        else:
+            print("Year range: {} to {}".format(str(key), str(key+9)))
+        subFrame = subFrames[key]
+
+        # get actual and predicted labels for popularity and rank
+        y_true_pop = subFrame['popularity-reduced-test']
+        y_pred_pop = subFrame[model]['model-pop'].predict(subFrame['data-test'])
+        y_true_rank = subFrame['peak-rank-reduced-test']
+        y_pred_rank = subFrame[model]['model-rank'].predict(subFrame['data-test'])
+
+        # get confusion matrices
+        matrix_pop = metrics.confusion_matrix(y_true_pop, y_pred_pop)
+        matrix_rank = metrics.confusion_matrix(y_true_rank, y_pred_rank)
+
+        # display matrices
+        matrix_pop_display = metrics.ConfusionMatrixDisplay(confusion_matrix=matrix_pop)
+        matrix_rank_display = metrics.ConfusionMatrixDisplay(confusion_matrix=matrix_rank)
+
+        matrix_pop_display.plot()
+        plt.title("Confusion matrix for popularity using model {}".format(model))
+        plt.show()
+
+        matrix_rank_display.plot()
+        plt.title("Confusion matrix for peak-rank using model {}".format(model))
+        plt.show()
+
 def main():
     # load the data
     data = pd.read_csv("pruned datasets/data.csv")
@@ -200,6 +248,16 @@ def main():
     analyzeLinReg(combinedEverything, True)
     analyzeRF(combinedEverything, True)
     analyzeKNN(combinedEverything, True)
+
+    # see confusion matrices for each model
+    confusionMatrix(subFrames, False, "knn")
+    confusionMatrix(subFrames, False, "linear-regression")
+    confusionMatrix(subFrames, False, "random-forest")
+
+    # Confusion matrices using entire dataset
+    confusionMatrix(combinedEverything, True, "knn")
+    confusionMatrix(combinedEverything, True, "linear-regression")
+    confusionMatrix(combinedEverything, True, "random-forest")
 
 if __name__ == "__main__":
     main()
