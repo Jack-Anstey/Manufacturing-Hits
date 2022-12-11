@@ -4,10 +4,8 @@ from sklearn.linear_model import SGDRegressor
 from sklearn.model_selection import RandomizedSearchCV
 from subframes import getSubFrames
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
 import xgboost as xgb
-
 
 def linReg(frames: dict(dict())) -> None:
     """Given a dictionary of dictionaries of dataframes,
@@ -22,18 +20,6 @@ def linReg(frames: dict(dict())) -> None:
         'model-rank': SGDRegressor(max_iter=1000, tol=1e-3).fit(frames[key]['data-train'], frames[key]['peak-rank-train'].values.ravel())}
 
     # no need to return frames since adding keys does that implicitly
-def getAcc(subFrame: dict()) -> tuple():
-    """Get the accuracy score of a given random forest model
-
-    Args:
-        subFrame (dict): the dictionary that holds the model and the data
-
-    Returns:
-        (float, float): the accuracy score using the popularity labels, and the accuracy score using the rank labels
-    """
-
-    return (accuracy_score(y_true=subFrame['popularity-reduced-test'], y_pred=subFrame['random-forest']['model-pop'].predict(subFrame['data-test'])),
-    accuracy_score(y_true=subFrame['peak-rank-reduced-test'], y_pred=subFrame['random-forest']['model-rank'].predict(subFrame['data-test'])))
 
 def randomForest(frames: dict(dict())) -> None:
     """Given a dictionary of dictionaries of dataframes,
@@ -216,9 +202,9 @@ def xgboost(frames: dict(dict())) -> None:
     """
 
     # hyperparameters for tuning
-    n_estimators = [25, 50, 75, 100, 150, 200,250]
-    max_depth = [2,4,6,8]
-    eta = [0.2,0.3,0.4,0.5]
+    n_estimators = [25, 50, 75, 100, 150, 200, 250]
+    max_depth = [2, 4, 6, 8]
+    eta = [0.2, 0.3, 0.4, 0.5]
 
     hyperF = dict(n_estimators = n_estimators,max_depth = max_depth, eta=eta)
     xgb_RandomGridPop = RandomizedSearchCV(estimator= xgb.XGBClassifier(), param_distributions=hyperF, cv=10, verbose=2, n_jobs=4)

@@ -3,7 +3,7 @@ import sklearn as sk
 from normalization import normalize
 from pca import pca
 
-def getDataRange(minYear: int, maxYear: int, data: pd.DataFrame, popularity: pd.DataFrame, rank: pd.DataFrame, popReduced: pd.DataFrame, rankReduced: pd.DataFrame) -> list():
+def getDataRange(minYear: int, maxYear: int, data: pd.DataFrame, popularity: pd.DataFrame, rank: pd.DataFrame, popReduced: pd.DataFrame, rankReduced: pd.DataFrame) -> dict():
     """Given a minimum year and a maximum year, get the rows that are within that range (inclusive)
 
     Args:
@@ -16,12 +16,12 @@ def getDataRange(minYear: int, maxYear: int, data: pd.DataFrame, popularity: pd.
         rankReduced (pd.DataFrame): the rank labels reduced to only have 10 classes
 
     Returns:
-        list(): a list of dataframes with only range of years provided in the args
+        dict(): a dict that contains relevant dataframes with only range of years provided in the args
     """
 
     if minYear > maxYear:
         print("The range values given are invalid. Cannot have a minYear be greater than a maxYear")
-        return None, None, None
+        return None
 
     # Make a copy of the data and then add the labels to the copy dataframe
     # We do this to make sure the labels continue to be associated with the correct rows

@@ -7,6 +7,7 @@ from subframes import getSubFrames
 from modelgen import randomForest
 from modelgen import linReg
 from modelgen import knn
+from modelgen import xgboost
 from normalization import normalize
 from sklearn import metrics
 import matplotlib.pyplot as plt
@@ -178,6 +179,29 @@ def analyzeKNN(subFrames: dict, fullData: bool) -> None:
         print("KNN F1 (peak-rank):", rank2)
         print()
 
+def analyzeXGB(subFrames: dict, fullData: bool) -> None:
+    """Analyze how effective the XGBoost model is
+
+    Args:
+        subFrames (dict): the dictionary that holds the model and the data
+        fullData (bool): true if you are using the entire dataset, false if not
+    """
+
+    # create models using subframes
+    xgboost(subFrames)
+
+    # display accuracy and F1 for knn
+    for key in subFrames:
+        if fullData: print("The Entire Dataset:") 
+        else: print("Year range:", str(key), "to", str(key+9))
+        pop1, rank1 = getAcc(subFrames[key], 'xgb')
+        pop2, rank2 = getF1(subFrames[key], 'xgb', 'weighted')
+        print("XGB model accuracy (popularity):", pop1)
+        print("XGB F1 (popularity):", pop2)
+        print("XGB model accuracy (peak-rank):", rank1)
+        print("XGB F1 (peak-rank):", rank2)
+        print()
+
 def confusionMatrix(subFrames: dict, fullData: bool, model: str) -> None:
     """
     Create confusion matrices for the subFrames input as parameters
@@ -234,12 +258,19 @@ def main():
     rankReduced = pd.read_csv("pruned datasets/ranks-reduced.csv")
 
     # get subframes from data
-    subFrames = getSubFrames(data, popularity, rank, popularityReduced, rankReduced, 1950, 2020)
+    subFrames = getSubFrames(data, popularity, rank, popularityReduced, rankReduced, 2020, 2020)
     
     # perform r^2, acc, and F1 analysis (as applicable) and print the results
     analyzeLinReg(subFrames, False)
     analyzeRF(subFrames, False)
     analyzeKNN(subFrames, False)
+    analyzeXGB(subFrames, False)
+
+    # see confusion matrices for each model
+    confusionMatrix(subFrames, False, "knn")
+    confusionMatrix(subFrames, False, "linear-regression")
+    confusionMatrix(subFrames, False, "random-forest")
+    confusionMatrix(subFrames, False, "xgb")
 
     # Combining training and test datasets
     combinedEverything = combine(subFrames)
@@ -248,16 +279,13 @@ def main():
     analyzeLinReg(combinedEverything, True)
     analyzeRF(combinedEverything, True)
     analyzeKNN(combinedEverything, True)
-
-    # see confusion matrices for each model
-    confusionMatrix(subFrames, False, "knn")
-    confusionMatrix(subFrames, False, "linear-regression")
-    confusionMatrix(subFrames, False, "random-forest")
+    analyzeXGB(combinedEverything, True)
 
     # Confusion matrices using entire dataset
     confusionMatrix(combinedEverything, True, "knn")
     confusionMatrix(combinedEverything, True, "linear-regression")
     confusionMatrix(combinedEverything, True, "random-forest")
+    confusionMatrix(combinedEverything, True, "xgb")
 
 if __name__ == "__main__":
     main()
