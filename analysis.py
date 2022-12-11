@@ -258,7 +258,7 @@ def main():
     rankReduced = pd.read_csv("pruned datasets/ranks-reduced.csv")
 
     # get subframes from data
-    subFrames = getSubFrames(data, popularity, rank, popularityReduced, rankReduced, 2020, 2020)
+    subFrames = getSubFrames(data, popularity, rank, popularityReduced, rankReduced, 1950, 2020)
     
     # perform r^2, acc, and F1 analysis (as applicable) and print the results
     analyzeLinReg(subFrames, False)

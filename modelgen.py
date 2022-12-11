@@ -42,7 +42,7 @@ def randomForest(frames: dict(dict())) -> None:
     for key in frames.keys():
         # no tuning
         # frames[key]['random-forest'] = {'model-pop': RandomForestClassifier(n_estimators=750, max_depth=15, min_samples_leaf=5).fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel()),
-        #                                 "model-rank": RandomForestClassifier(n_estimators=750, max_depth=15, min_samples_leaf=5).fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())}
+        #                                 'model-rank': RandomForestClassifier(n_estimators=750, max_depth=15, min_samples_leaf=5).fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())}
 
         # with tuning
         # rf_RandomGridPop.fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel())
@@ -52,13 +52,12 @@ def randomForest(frames: dict(dict())) -> None:
         # print("rank rf grid best params: {}\n".format(rf_RandomGridRank.best_params_))
 
         # hard coded tuning
-        estimatorsP, max_depthP, mlsP, mssP, estimatorsR, mssR, mlsR, max_depthR = getBestParams(key)
+        estimatorsP, max_depthP, mlsP, mssP, estimatorsR, mssR, mlsR, max_depthR = getBestParamsRF(key)
 
         frames[key]['random-forest'] = {'model-pop': RandomForestClassifier(n_estimators=estimatorsP, max_depth=max_depthP, min_samples_split=mssP, min_samples_leaf=mlsP).fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel()),
-                                        "model-rank": RandomForestClassifier(n_estimators=estimatorsR, max_depth=max_depthR, min_samples_split=mssR, min_samples_leaf=mlsR).fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())}
+                                        'model-rank': RandomForestClassifier(n_estimators=estimatorsR, max_depth=max_depthR, min_samples_split=mssR, min_samples_leaf=mlsR).fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())}
 
-
-def getBestParams(key: str) -> tuple():
+def getBestParamsRF(key: str) -> tuple():
     """Get the best parameters for random forest given a key
 
     Args:
@@ -159,15 +158,8 @@ def getBestParams(key: str) -> tuple():
         mlsR = 1
         max_depthR = 8
     else:  # defaults
-        estimatorsP = 750
-        mssP = 5
-        mlsP = 5
-        max_depthP = 15
-
-        estimatorsR = 750
-        mssR = 5
-        mlsR = 5
-        max_depthR = 15
+        print("Unexpected key")
+        quit()
 
     return estimatorsP, max_depthP, mlsP, mssP, estimatorsR, mssR, mlsR, max_depthR
  
@@ -179,7 +171,7 @@ def knn(frames: dict(dict())) -> None:
     """
 
     # hyperparameters for tuning
-    n_neighbors = [1,3,5,10,20,30,50,75,100,150,200]
+    n_neighbors = [1, 3, 5, 10, 20, 30, 50, 75, 100, 150, 200]
     metric = ['euclidean','manhattan','minkowski']
     hyperF = dict(n_neighbors = n_neighbors,metric = metric)
     knn_RandomGridPop = RandomizedSearchCV(estimator= KNeighborsClassifier(), param_distributions=hyperF, cv=10, verbose=2, n_jobs=4)
@@ -192,8 +184,6 @@ def knn(frames: dict(dict())) -> None:
         print("pop knn grid best params: {}\n".format(knn_RandomGridPop.best_params_))
         print("rank knn grid best params: {}\n".format(knn_RandomGridRank.best_params_))
 
-        
-        
 def xgboost(frames: dict(dict())) -> None:
     """Given a dictionary of dictionaries of dataframes,
     this method creates a XGBoost model for all of them
@@ -211,16 +201,107 @@ def xgboost(frames: dict(dict())) -> None:
     xgb_RandomGridRank = RandomizedSearchCV(estimator= xgb.XGBClassifier(), param_distributions=hyperF, cv=10, verbose=2, n_jobs=4)
 
     for key in frames.keys():
-        xgb_RandomGridPop.fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel())
-        xgb_RandomGridRank.fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())
-        frames[key]['xgb'] = {'model-pop': xgb_RandomGridPop, 'model-rank' : xgb_RandomGridRank}
-        print("pop xgb grid best params: {}\n".format(xgb_RandomGridPop.best_params_))
-        print("rank xgb grid best params: {}\n".format(xgb_RandomGridRank.best_params_))
-    
+        # randomized grid search to find optimial parameters
+        # xgb_RandomGridPop.fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel())
+        # xgb_RandomGridRank.fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())
+        # frames[key]['xgb'] = {'model-pop': xgb_RandomGridPop, 'model-rank' : xgb_RandomGridRank}
+        # print("pop xgb grid best params: {}\n".format(xgb_RandomGridPop.best_params_))
+        # print("rank xgb grid best params: {}\n".format(xgb_RandomGridRank.best_params_))
+
+        # hard coded tuning
+        estimatorsP, max_depthP, etaP, estimatorsR, max_depthR, etaR = getBestParamsXGB(key)
+
+        frames[key]['xgb'] = {'model-pop': xgb.XGBClassifier(n_estimators=estimatorsP, max_depth=max_depthP, eta=etaP).fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel()),
+                                            'model-rank': xgb.XGBClassifier(n_estimators=estimatorsR, max_depth=max_depthR, eta=etaR).fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())}
         
+def getBestParamsXGB(key: str) -> tuple():
+    """Get the best parameters for xgb given a key
+
+    Args:
+        key (str): the key that defines what best parameters we chose
+
+    Returns:
+        tuple: a tuple of the best parameters
+    """
+
+    if key == 1950:
+        estimatorsP = 200
+        max_depthP = 6
+        etaP = 0.3
+        estimatorsR = 75 
+        max_depthR = 2
+        etaR = 0.2
+       
+    elif key == 1960:
+        estimatorsP = 100
+        max_depthP = 6
+        etaP = 0.3
+        estimatorsR = 25 
+        max_depthR = 2
+        etaR = 0.2
         
+    elif key == 1970:
+        estimatorsP = 100
+        max_depthP = 6
+        etaP = 0.4
+        estimatorsR = 25 
+        max_depthR = 2
+        etaR = 0.5
         
+    elif key == 1980:
+        estimatorsP = 25
+        max_depthP = 4
+        etaP = 0.2
+        estimatorsR = 75 
+        max_depthR = 2
+        etaR = 0.3
         
+    elif key == 1990:
+        estimatorsP = 75
+        max_depthP = 2
+        etaP = 0.2
+        estimatorsR = 25 
+        max_depthR = 2
+        etaR = 0.4
+        
+    elif key == 2000:
+        estimatorsP = 100
+        max_depthP = 4
+        etaP = 0.2
+        estimatorsR = 200 
+        max_depthR = 4
+        etaR = 0.2
+        
+    elif key == 2010:
+        estimatorsP = 50
+        max_depthP = 2
+        etaP = 0.5
+        estimatorsR = 200 
+        max_depthR = 4
+        etaR = 0.3
+        
+    elif key == 2020:
+        estimatorsP = 50
+        max_depthP = 6
+        etaP = 0.2
+        estimatorsR = 75 
+        max_depthR = 5
+        etaR = 0.2
+        
+    elif key == "everything":
+        estimatorsP = 25
+        max_depthP = 4
+        etaP = 0.4
+        estimatorsR = 25 
+        max_depthR = 2
+        etaR = 0.4
+        
+    else:  # defaults
+        print("Unexpected key")
+        quit()
+
+    return estimatorsP, max_depthP, etaP, estimatorsR, max_depthR, etaR
+
 def main():
     data = pd.read_csv("pruned datasets/data.csv")
     popularity = pd.read_csv("pruned datasets/popularity.csv")
