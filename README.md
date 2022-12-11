@@ -11,3 +11,4 @@ This project would not have been possible without the hard work of:
 - Jack Xu [@jxu0208](https://github.com/jxu0208)
 - Sean Huang [@sean3huang](https://github.com/sean3huang)
 - Jack Anstey [@Jack-Anstey](https://github.com/Jack-Anstey)
+- 
