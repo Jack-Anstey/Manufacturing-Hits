@@ -6,6 +6,7 @@ from subframes import getSubFrames
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.neighbors import KNeighborsClassifier
+import xgboost as xgb
 
 
 def linReg(frames: dict(dict())) -> None:
@@ -204,6 +205,35 @@ def knn(frames: dict(dict())) -> None:
         frames[key]['knn'] = {'model-pop': knn_RandomGridPop, 'model-rank' : knn_RandomGridRank}
         print("pop knn grid best params: {}\n".format(knn_RandomGridPop.best_params_))
         print("rank knn grid best params: {}\n".format(knn_RandomGridRank.best_params_))
+
+        
+        
+def xgboost(frames: dict(dict())) -> None:
+    """Given a dictionary of dictionaries of dataframes,
+    this method creates a XGBoost model for all of them
+    Args:
+        frames (dict(dict())): A dictionary of dictionaries of dataframes
+    """
+
+    # hyperparameters for tuning
+    n_estimators = [25, 50, 75, 100, 150, 200,250]
+    max_depth = [2,4,6,8]
+    eta = [0.2,0.3,0.4,0.5]
+
+    hyperF = dict(n_estimators = n_estimators,max_depth = max_depth, eta=eta)
+    xgb_RandomGridPop = RandomizedSearchCV(estimator= xgb.XGBClassifier(), param_distributions=hyperF, cv=10, verbose=2, n_jobs=4)
+    xgb_RandomGridRank = RandomizedSearchCV(estimator= xgb.XGBClassifier(), param_distributions=hyperF, cv=10, verbose=2, n_jobs=4)
+
+    for key in frames.keys():
+        xgb_RandomGridPop.fit(frames[key]['data-train'], frames[key]['popularity-reduced-train'].values.ravel())
+        xgb_RandomGridRank.fit(frames[key]['data-train'], frames[key]['peak-rank-reduced-train'].values.ravel())
+        frames[key]['xgb'] = {'model-pop': xgb_RandomGridPop, 'model-rank' : xgb_RandomGridRank}
+        print("pop xgb grid best params: {}\n".format(xgb_RandomGridPop.best_params_))
+        print("rank xgb grid best params: {}\n".format(xgb_RandomGridRank.best_params_))
+    
+        
+        
+        
         
 def main():
     data = pd.read_csv("pruned datasets/data.csv")
