@@ -83,7 +83,7 @@ def reduceLabels() -> None:
         reduced_ranks.replace(to_replace=i, value=value, inplace=True)
     reduced_ranks.to_csv('pruned datasets/ranks-reduced.csv', index=False)
     
-def reduceLabels5() -> None:
+def reduceLabels() -> None:
     """Take the newly generated popularity.csv and ranks.csv,
     and then create popularity-reduced.csv and ranks-reduced.csv
     where we reduce the number of classes from 100 to 5,
@@ -92,7 +92,7 @@ def reduceLabels5() -> None:
     reduced_pop = pd.read_csv("pruned datasets/popularity.csv")
     reduced_ranks = pd.read_csv("pruned datasets/ranks.csv")
 
-# reduce categories of popularity
+    # reduce categories of popularity
     for i in range(0, 101):
         v = int(i / 20)
         if i == 100:
@@ -100,7 +100,7 @@ def reduceLabels5() -> None:
         reduced_pop.replace(to_replace=i, value=v, inplace=True)
     reduced_pop.to_csv('pruned datasets/popularity-reduced.csv', index=False)
 
-# reduce categories of rank
+    # reduce categories of rank
     value = 0
     for i in range(1, 101):
         if i % 20 == 0:
@@ -118,7 +118,7 @@ def main():
 
     data = pruneNulls(pd.read_csv("original datasets/data.csv", skip_blank_lines=False))
     pruneData(data)
-    reduceLabels5()
+    reduceLabels()
     
 if __name__ == "__main__":
     main()
