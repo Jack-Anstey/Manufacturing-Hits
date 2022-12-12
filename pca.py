@@ -9,8 +9,8 @@ def pca(xTrain, xTest):
         xTrain (pd.DataFrame): the training set of features which the PCA will be fit on
         xTest (pd.DataFrame) : the test set of features
     Returns:
-        new_xTrain (pd.DataFrame): the transformed training data, columns relabled as the principal components they represent
-        new_xTest (pd.DataFrame): the transformed training data, columns relabled as the principal components they represent
+        new_xTrain (pd.DataFrame): the transformed training data, columns relabeled as the principal components they represent
+        new_xTest (pd.DataFrame): the transformed training data, columns relabeled as the principal components they represent
     """
 
     new_xTrain = None
@@ -35,6 +35,7 @@ def main():
     data = pd.read_csv("pruned datasets/data.csv")
     xTrain, xTest = train_test_split(data, test_size=0.3)
     new_xTrain,new_xTest = pca(xTrain,xTest)
-    
+
+
 if __name__ == "__main__":
     main()

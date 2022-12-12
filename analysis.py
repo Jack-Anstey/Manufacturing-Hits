@@ -213,12 +213,12 @@ def confusionMatrix(subFrames: dict, fullData: bool, model: str) -> None:
 
     if model == "knn":
         knn(subFrames)
-    elif model == "linear-regression":
-        linReg(subFrames)
     elif model == "random-forest":
         randomForest(subFrames)
+    elif model == "xgb":
+        xgboost(subFrames)
     else:
-        print("Please enter\n1. knn\n2. linear-regression\n3. random-forest\nas the \"model\" parameter")
+        print("Please enter\n1. knn\n2. random-forest\n3. xbg\nas the \"model\" parameter")
 
     for key in subFrames:
         if fullData:
@@ -260,30 +260,28 @@ def main():
     # get subframes from data
     subFrames = getSubFrames(data, popularity, rank, popularityReduced, rankReduced, 1950, 2020)
     
-    # perform r^2, acc, and F1 analysis (as applicable) and print the results
-    analyzeLinReg(subFrames, False)
-    analyzeRF(subFrames, False)
-    analyzeKNN(subFrames, False)
-    analyzeXGB(subFrames, False)
-
-    # see confusion matrices for each model
-    confusionMatrix(subFrames, False, "knn")
-    confusionMatrix(subFrames, False, "linear-regression")
-    confusionMatrix(subFrames, False, "random-forest")
-    confusionMatrix(subFrames, False, "xgb")
+    # # perform r^2, acc, and F1 analysis (as applicable) and print the results
+    # analyzeLinReg(subFrames, False)
+    # analyzeRF(subFrames, False)
+    # analyzeKNN(subFrames, False)
+    # analyzeXGB(subFrames, False)
+    #
+    # # see confusion matrices for each model
+    # confusionMatrix(subFrames, False, "knn")
+    # confusionMatrix(subFrames, False, "random-forest")
+    # confusionMatrix(subFrames, False, "xgb")
 
     # Combining training and test datasets
     combinedEverything = combine(subFrames)
 
-    # Check the results using the entire dataset!
-    analyzeLinReg(combinedEverything, True)
-    analyzeRF(combinedEverything, True)
-    analyzeKNN(combinedEverything, True)
-    analyzeXGB(combinedEverything, True)
+    # # Check the results using the entire dataset!
+    # analyzeLinReg(combinedEverything, True)
+    # analyzeRF(combinedEverything, True)
+    # analyzeKNN(combinedEverything, True)
+    # analyzeXGB(combinedEverything, True)
 
     # Confusion matrices using entire dataset
-    confusionMatrix(combinedEverything, True, "knn")
-    confusionMatrix(combinedEverything, True, "linear-regression")
+    # confusionMatrix(combinedEverything, True, "knn")
     confusionMatrix(combinedEverything, True, "random-forest")
     confusionMatrix(combinedEverything, True, "xgb")
 
