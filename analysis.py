@@ -260,28 +260,28 @@ def main():
     # get subframes from data
     subFrames = getSubFrames(data, popularity, rank, popularityReduced, rankReduced, 1950, 2020)
     
-    # # perform r^2, acc, and F1 analysis (as applicable) and print the results
-    # analyzeLinReg(subFrames, False)
-    # analyzeRF(subFrames, False)
-    # analyzeKNN(subFrames, False)
-    # analyzeXGB(subFrames, False)
-    #
-    # # see confusion matrices for each model
-    # confusionMatrix(subFrames, False, "knn")
-    # confusionMatrix(subFrames, False, "random-forest")
-    # confusionMatrix(subFrames, False, "xgb")
+    # perform r^2, acc, and F1 analysis (as applicable) and print the results
+    analyzeLinReg(subFrames, False)
+    analyzeRF(subFrames, False)
+    analyzeKNN(subFrames, False)
+    analyzeXGB(subFrames, False)
+    
+    # see confusion matrices for each model
+    confusionMatrix(subFrames, False, "knn")
+    confusionMatrix(subFrames, False, "random-forest")
+    confusionMatrix(subFrames, False, "xgb")
 
     # Combining training and test datasets
     combinedEverything = combine(subFrames)
 
-    # # Check the results using the entire dataset!
-    # analyzeLinReg(combinedEverything, True)
-    # analyzeRF(combinedEverything, True)
-    # analyzeKNN(combinedEverything, True)
-    # analyzeXGB(combinedEverything, True)
+    # Check the results using the entire dataset!
+    analyzeLinReg(combinedEverything, True)
+    analyzeRF(combinedEverything, True)
+    analyzeKNN(combinedEverything, True)
+    analyzeXGB(combinedEverything, True)
 
     # Confusion matrices using entire dataset
-    # confusionMatrix(combinedEverything, True, "knn")
+    confusionMatrix(combinedEverything, True, "knn")
     confusionMatrix(combinedEverything, True, "random-forest")
     confusionMatrix(combinedEverything, True, "xgb")
 
